@@ -7,9 +7,13 @@ based on dark.css by Ivan Sagalaev
   display: block;
   overflow-x: auto;
   padding: 0.5em;
-  background: #3f3f3f;
+  /*background: #3f3f3f;*/
   color: #dcdcdc;
   -webkit-text-size-adjust: none;
+}
+
+.hljs.centered {
+  text-align: center;
 }
 
 .hljs-keyword,

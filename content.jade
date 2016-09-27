@@ -1,55 +1,216 @@
 section
+  h1 👋
+
+section
   h1 gio
   h2 @mokagio
-  h1 ⚡️
-  br
-  h1.fragment
+
+section
+  img(src="img/iflix.jpg")
+
+  aside.notes
+    :markdown-it
+      Since before joining iflix I've mainly been focusing on iOS tooling,
+      infrastructure, and on nitpicking PRs.
+
+      I try to make sure our team is as productive as it can be, and this
+      involves leveraging Swift to the best that we can.
+
+//
+    aside.notes
+      :markdown-it
+        Writing Swift this way is fun and entertaining...  But that code is not
+        the best to use on team projects. Moreover since many of those "original"
+        libraries push the compiler to the limit, you might be in for some
+        troublesome debugging.
+
+        That is **unconventional** Swift, and this talk is not about it.
 
 section
   div(style="text-align: right")
-    h1(style="color: #F05138") Less Conventional Swift
+    h1(style="color: #F05138")
+      i Less Conventional Swift
+
+  aside.notes
+    :markdown-it
+      ...and this is how this talk came about
+
+      I'd like to show you some less mainstream Swift tools that you can use
+      to make your every day coding better.
 
 section
-  h1 Free Functions
-  br
-  br
-  h3.fragment
-    :markdown-it
-      ```
-      // File.swift
+  img(src="img/PizzaDelivery.png")
+  h2 Pizza Delivery
 
-      func transform(input: A) -> B {
-        // ...
+  aside.notes
+    :markdown-it
+      To do so I built this dummy "Pizza Delivery" app, which has all your
+      usual iOS staples: table view, network request, JSON parsing...
+
+      We'll see how we can make this code better.
+
+      _Show the app running with its details etc_
+
+section
+  h1
+    code typealias
+
+  aside.notes
+    :markdown-it
+      Before we get into the actual juicy part of the talk I'd like to share
+      this useful technique with you.
+
+      Use `typealias` to make your code _more semantic_.
+
+      Rename standard types into something meaninful for your domain.
+
+section
+  h2
+    pre
+      code.language-swift.hljs.centered.
+        typealias NewType = OldType
+
+section
+  h1
+    :markdown-it
+      `switch`
+
+  aside.notes
+    :markdown-it
+      In the code to handle the two types of table view we use Swift's switch
+      statement to enumerate the different enum cases.
+
+      Here's something cool you can do with `switch`.
+
+section
+  h2
+    :markdown-it
+      ```swift
+      if x == something {
+        if y == anotherThing {
+          ...
+        } else {
+          ...
+        }
+      } else if y == somethingElse {
+        ...
+      } else {
+        ...
+      }
+      ```
+section
+  h2
+    :markdown-it
+      ```swift
+      switch (x, y) {
+      case (something, anotherThing): ...
+      case (something, _): ...
+      case (_, somethingElse): ....
+      case _: ...
       }
       ```
 
-section
-  h2 Higher Order Functions
-  br
-  br
-  h2.fragment func as input
-  h2.fragment func as output
+  aside.notes.
+    We can use this technique to simplify the code handling the network
+    requests
 
 section
   h1
     code enum
 
-section
-  img(src='./img/enum-value-not-unique.jpg')
+  aside.notes
+    :markdown-it
+      `enum` is one of the pillars on which many of the cool things that we can
+      do with Swift rely on.
+
+      In older languages enums are only meant to represent lists of _things_,
+      but in languages like Swift they are way more powerful and versataile,
+      and we'll see how.
 
 section
-  h2 enum for view state
+  h2 Error enums
+  br
+  div.fragment
+    h2
+      :markdown-it
+        ```swift
+        enum PizzeriaError: Error {
+          case outOfMozzarella
+          case ovenTooHot
+          case dispatchedAllDeliveryPeople
+        }
+        ```
+
+  aside.notes
+    :markdown-it
+      `enum` is great to represent errors
+
+      It allows us to give a more semantic meaning to the error, and drop the
+      cumbersome `NSError`. If anything is less code to write.
+
+section
+  h2 Associated Value
+  br
+  div.fragment
+    h2
+      :markdown-it
+        ```swift
+        enum AssociationExample {
+          case simple
+          case withValue(String)
+          case withMoreValues(String, Int)
+        }
+        ```
+
+  aside.notes.
+    Associated values allow us to supercharge our enums and use them in all
+    sorts of different ways.
+
+section
+  h3 Do you know this enum?
   br
   h2
     :markdown-it
       ```swift
-      enum ViewState<T> {
-        case Empty
-        case Loading
-        case Loaded(T)
-        case Errored(ErrorProtocol)
+      enum ???<T>{
+        case .some(T)
+        case .none
       }
       ```
+
+section
+  h2
+    :markdown-it
+      ```swift
+      enum Optional<Wrapped>{
+        case .some(Wrapped)
+        case .none
+      }
+      ```
+
+section
+  h2 Mutually Exclusive Lists
+
+  aside.notes.
+    enums are great to represent mutually exclusive values, in other words...
+
+section
+  h2
+    i "Either one or the other"
+
+  aside.notes.
+    Is there anything in Pizza Delivery that can be represented as either
+    something or something else?
+
+section
+  h1 🤔
+
+section
+  img(src="img/either-pizza-or-ad.png")
+
+  aside.notes.
+    Turns out there is, and that's the cells of the menu table view. They can
+    either be pizza or advertisement.
 
 section
   h1 Either
@@ -58,44 +219,33 @@ section
     :markdown-it
       ```swift
       enum Either<A,B>{
-        case Left(A)
-        case Right(B)
+        case left(A)
+        case right(B)
       }
       ```
 
 section
-  div(style="overflow: auto; zoom: 1;")
-    div(style="float: left; width: 70%; max-height: 90%")
-      h4
-        :markdown-it
-          ```swift
-          let data: [Either<Pizza, Ad>] = [
-            // ...
-          ]
+  h1 🤔
 
-          func tableView(
-            _ tableView: UITableView,
-            cellForRowAt indexPath: IndexPath
-            ) -> UITableViewCell {
-            let item = data[indexPath.row]
+section
+  h2
+    i "Either succeed or fail"
 
-            let identifier = identifier(forItem: item)
+section
+  h2 Network request
+  h2.fragment Data to JSON object
+  h2.fragment JSON object to domain object
 
-            let cell = tableView.dequeueReusableCell(
-              withIdentifier: identifier,
-              for: indexPath
-            )
+  aside.notes
+    :markdown-it
+      These are all operations that can either succeed or fail.
 
-            switch item {
-            case .Left(let model): configure(cell, withModel: model)
-            case .Right(let ad): configure(cell, withAd: ad)
-            }
+      The first instinct would be to use Either right? Once you're given an
+      hammer everything looks like a nail...
 
-            return cell
-          }
-          ```
-    div(style="float: right; width: 30%;")
-      img(src="./img/pizza-and-ads.png" style="border: none; background: none;")
+      But we can do better than that... We can write an either type that is
+      more semantic within the context of operations that can either succeed
+      or fail.
 
 section
   h1 Result
@@ -103,87 +253,183 @@ section
   h2.fragment
     :markdown-it
       ```swift
-      enum Result<T> {
-        case Success(T)
-        case Failure(ErrorProtocol)
+      enum Result<Value, ResultError: Error> {
+        case success(Value)
+        case failure(ResultError)
       }
       ```
+
+section
+  h2
+    :markdown-it
+      `map` & `flatMap`
+
+  aside.notes.
+    We can define some functions for Result that make it even more useful
 
 section
   h3
     :markdown-it
       ```swift
-      let task = session.dataTask(with: request) { (result: Result<(Data, URLResponse)>) in
-        switch result {
-        case .Success(let data, let response):
-          // Do stuff with data and response
-          break
-        case .Failure(let error):
-          // Do stuff with error
-          break
-        }
-      }
 
-      task.resume()
+      func map<T>(_ f: (Value) -> T) -> Result<T, ResultError>
+
       ```
+
+  aside.notes.
+    map allows us to take a function that goes from A to B, and apply it to
+    the content of result only if that is successful, returning a result that
+    is now of type B, Error
+
+section
+  h3
+    :markdown-it
+      ```swift
+
+      func flatMap<T>(_ f: (Value) -> Result<T, ResultError>)
+      
+        -> Result<T, ResultError>
+
+
+      ```
+
+  aside.notes.
+    flatMap allows us to take a function that performs an operation returning
+    a result with type B, same error, and apply it to the content of result
+    only if that is successful, returning a result that is now of type B, Error.
+
+section
+  h3
+    :markdown-it
+      ```swift
+      func mapError<NewError: Error>(
+          _ f: (ResultError) -> NewError
+        )
+        -> Result<Value, NewError>
+      ```
+  br
+  h3
+    :markdown-it
+      ```swift
+      func flatMapError<NewError: Error>(
+          _ f: (ResultError) -> Result<Value, NewError>
+        )
+        -> Result<Value, NewError> {
+      ```
+
+  aside.notes.
+    We can do the same, but for the failure case, so that we can transform
+    the contained error into another one.
 
 section
   h3
     a(src='https://github.com/antitypical/Result', target='_blank') https://github.com/antitypical/Result
-  br
-  br
-  div.fragment
-    :markdown-it
-      ## `map`, `flatMap`
-  div.fragment
-    :markdown-it
-      ## `mapError`, `flatMapError`
+
+  aside.notes.
+    When using Result is strongly recommend you use this implementation. It
+    comes with map, flatMap, mapError, flatMapError, and even more bells and
+    whistles
 
 section
-  h2 materialize
-  div(style="font-size: 1.2em")
+  h1 🤔
+
+section
+  h1 View State
+
+section
+  h2 Loading
+  br
+  img(src="img/view-state-loading.png", style="max-width: 33%")
+
+section
+  h2 Loaded
+  br
+  img(src="img/view-state-loaded.png", style="max-width: 33%")
+
+section
+  h2 Errored
+  br
+  img(src="img/view-state-errored.png", style="max-width: 33%")
+
+section
+  h2 enum for view state
+  br
+  h2
     :markdown-it
       ```swift
-      do {
-        let json = try JSONSerialization.jsonObject(with: data, options: [])
-      } catch {
-        print(error)
-      }
-
-      //
-      // materialize!
-      //
-
-      let json = materialize {
-        try JSONSerialization.jsonObject(with: data, options: [])
-      }
-
-      switch json {
-      case .Success(let object):
-        // Do stuff with actual value
-        break
-      case .Failure(let error):
-        // Do stuff with error
-        break
+      enum ViewState<T> {
+        case loading
+        case loaded(T)
+        case errored(Error)
+        // case empty
       }
       ```
+
+  aside.notes.
+    By defining an enum for the state of your view you get two bonuses. First
+    you can centralise all the logic to handle the state safely into a switch
+    statement. Second you will never be in an inconsistent state, because you
+    can't be in two enum cases at once.
+
+section
+  h1 Recap
+  br
+  h2.fragment typealias
+  h2.fragment switch
+  h2.fragment Either
+  h2.fragment Result
+  h2.fragment ViewState
 
 section
   div
     :markdown-it
-      ## `Optional<T>`
-  div.fragment
+      ### `Optional<T>`
+  div
     :markdown-it
-      ## `Either<A,B>`
-  div.fragment
+      ### `Either<A,B>`
+  div
     :markdown-it
-      ## `Result<T>`
+      ### `Result<T, ResultError: Error>`
+
+  div
+    :markdown-it
+      ### `ViewState<T>`
+
+  aside.notes
+    :markdown-it
+      Let's now take a step back and look at all these enums. What do they
+      have in common?
+
+      They are all using... (go to next slide)
 
 section
   h1 Generics
   div.fragment
-    h2 &
+    h2 👇 
     h1 Abstractions
+
+  aside.notes
+    :markdown-it
+      As developer we rely on abstractions all the time. Our programming
+      languages are abstractions themselves.
+
+      It is very important for us to keep our abstraction skills sharp, and
+      practicing writing abstractions.
+
+      Let me tell you a story...
+
+//
+  section
+    h1 The story of laser...
+
+    aside.notes.
+        Writing good abstraction is hard, and this is why we need to practice,
+        and also need to look outside our area of expertise to see how other
+        frameworks, languages, communities have solved problems using
+        abstractions
+
+        These are two abstraction that I experimented with. I'm not sure how
+        good they are, but I'd like to still share them with you.
 
 section
   h2 GenericTableViewController
@@ -206,30 +452,57 @@ section
     a(src='https://github.com/mokagio/GenericTableViewController', target='_blank') https://github.com/mokagio/GenericTableViewController
 
 section
-  h1
-    code init?
+  h3 StatefulContainerViewController
+  br
+  h3
+    :markdown-it
+      ```swift
+      let initialState = ViewState<[Either<Pizza, Ad>]>.loading
 
-section
-  h1 Dependant Types
-  br
-  br
-  h2.fragment
-    code NotEmptyArray
-  h2.fragment
-    code PhoneNumber
-  h2.fragment
-    code BoundedInt
+      let container = containerViewController(withInitialState: initialState) { (state) -> UIViewController in
+        switch state {
+        case .loading:
+          return LoadingViewController()
+        case .errored(let error):
+          return ErrorViewController(error: error)
+        case .loaded(let data):
+          return pizzaListViewController(list: data)
+        }
+      }
+      ```
 
-section
-  img(src="img/logos.png")
-
-section
-  h2 Try less conventional code
-  br
-  br
-  div.fragment
-    div
-      img(src="img/just-do-it.gif")
+//
+  section
+    h1 Dependant Types
     br
     br
-    h3 @mokagio
+    h2.fragment
+      code NotEmptyArray
+    h2.fragment
+      code PhoneNumber
+    h2.fragment
+      code BoundedInt
+
+//
+  section
+    img(src="img/logos.png")
+
+  section
+    h2 Try less conventional code
+    br
+    br
+    div.fragment
+      div
+        p change this...
+        img(src="img/just-do-it.gif")
+      br
+      br
+      h3 @mokagio
+
+section
+  h1 Thanks
+  h1 💖
+
+section
+  h2 http://mokacoding.com/
+  h2 yow_connected_16.html
